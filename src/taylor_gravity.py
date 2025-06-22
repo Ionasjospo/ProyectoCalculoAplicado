@@ -1,13 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
-# Parámetros físicos
-g_val = 9.81  # gravedad en m/s^2
-gammas = {
-    "Hormiga": 6.54,
-    "Persona": 2.35e-1,
-    "Auto": 1.05e-2
-}
+from data.constants import g_val, gammas
+from src.utils import y_with_friction, y_without_friction, y_taylor
 
 # Condiciones iniciales a evaluar
 initial_conditions = [
@@ -18,16 +12,6 @@ initial_conditions = [
     (0, 0.1),
     (0, 100)
 ]
-
-# Definición de funciones
-def y_con_rozamiento(t, y0, v0, g, gamma):
-    return y0 - (g / gamma) * t - (1 / gamma) * (v0 + g / gamma) * (np.exp(-gamma * t) - 1)
-
-def y_sin_rozamiento(t, y0, v0, g):
-    return y0 + v0 * t - 0.5 * g * t**2
-
-def y_taylor(t, y0, v0, g, gamma):
-    return y0 + v0 * t - 0.5 * (g + gamma * v0) * t**2
 
 # Tiempo de simulación
 t_vals = np.linspace(0, 20, 400)
@@ -46,8 +30,8 @@ for k, condiciones in enumerate(condiciones_divididas):
 
     for i, (y0, v0) in enumerate(condiciones):
         for j, (label, gamma_val) in enumerate(gammas.items()):
-            y_real = y_con_rozamiento(t_vals, y0, v0, g_val, gamma_val)
-            y_free = y_sin_rozamiento(t_vals, y0, v0, g_val)
+            y_real = y_with_friction(t_vals, y0, v0, g_val, gamma_val)
+            y_free = y_without_friction(t_vals, y0, v0, g_val)
             y_tayl = y_taylor(t_vals, y0, v0, g_val, gamma_val)
 
             ax = axs[i, j]

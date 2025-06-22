@@ -1,15 +1,10 @@
 import sympy as sp
 import matplotlib.pyplot as plt
 import numpy as np
+from data.constants import RT, h, G, M
+
 
 # 1. Desarrollo de Taylor alrededor de r0 hasta orden 1
-
-# Definir las variables
-RT = 6.378e6  # Radio de la Tierra en metros
-h = 8849      # Altura del Monte Everest
-G = 6.674e-11  # Constante de gravitación universal
-M = 5.972e24     # Masa de la Tierra
-
 # Definir variable simbólica
 r = sp.Symbol('r')
 
@@ -19,8 +14,6 @@ f = -G * M / r**2
 r0 = RT
 taylor_order1 = f.series(r, r0, 2).removeO()  #Preguntar si se puede utilizar esta funcion o hacer desarollo completo de taylor
 taylor_redondeado = taylor_order1.evalf(5)  # 5 cifras significativas aprox.
-
-
 
 
 # 2. Evaluar f(RT + h) y calcular diferencia relativa con f(RT)
@@ -47,9 +40,6 @@ taylor_order2_func = sp.lambdify(r, taylor_order2.subs({G: G, M: M}), modules='n
 #Comparar f(RT + h) con el taylor de orden 2
 taylor_val_at_RTh = taylor_order2_func(RT + h)
 error_order2 = abs(taylor_val_at_RTh - f_RTh) / abs(f_RTh)
-
-
-
 
 
 # 4. Graficar f(r) y el polinomio de Taylor cerca de RT
