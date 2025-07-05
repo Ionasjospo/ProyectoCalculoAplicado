@@ -1,76 +1,55 @@
-import sympy as sp
-import matplotlib.pyplot as plt
 import numpy as np
-from data.constants import RT, h, G, M
+import matplotlib.pyplot as plt
+from data.constants import g_val, gammas
+from src.utils import y_with_friction, y_without_friction, y_taylor
 
+# Condiciones iniciales a evaluar
+initial_conditions = [
+    (1, 0),
+    (1000, 0),
+    (1, -100),
+    (1000, -100),
+    (0, 0.1),
+    (0, 100)
+]
 
-# 1. Desarrollo de Taylor alrededor de r0 hasta orden 1
-# Definir variable simbólica
-r = sp.Symbol('r')
+# Tiempo de simulación
+t_vals = np.linspace(0, 20, 400)
 
-# Definir la función f(r) = -GM / r^2
-f = -G * M / r**2
+# Dividir en 3 partes (2 condiciones por parte)
+condiciones_divididas = [
+    initial_conditions[0:2],
+    initial_conditions[2:4],
+    initial_conditions[4:6]
+]
 
-r0 = RT
-taylor_order1 = f.series(r, r0, 2).removeO()  #Preguntar si se puede utilizar esta funcion o hacer desarollo completo de taylor
-taylor_redondeado = taylor_order1.evalf(5)  # 5 cifras significativas aprox.
+# Graficar cada parte con leyenda única
+for k, condiciones in enumerate(condiciones_divididas):
+    fig, axs = plt.subplots(len(condiciones), len(gammas), figsize=(18, 7), sharex=True, sharey=True)
+    fig.suptitle(f"Comparación de modelos de caída libre - Parte {k+1}", fontsize=16)
 
+    for i, (y0, v0) in enumerate(condiciones):
+        for j, (label, gamma_val) in enumerate(gammas.items()):
+            y_real = y_with_friction(t_vals, y0, v0, g_val, gamma_val)
+            y_free = y_without_friction(t_vals, y0, v0, g_val)
+            y_tayl = y_taylor(t_vals, y0, v0, g_val, gamma_val)
 
-# 2. Evaluar f(RT + h) y calcular diferencia relativa con f(RT)
+            ax = axs[i, j]
+            ax.plot(t_vals, y_real, label="Rozamiento" if (i == 0 and j == 0) else "", color="tab:blue")
+            ax.plot(t_vals, y_free, "--", label="Sin rozamiento" if (i == 0 and j == 0) else "", color="tab:orange")
+            ax.plot(t_vals, y_tayl, ":", label="Taylor 2° orden" if (i == 0 and j == 0) else "", color="tab:green")
+            ax.set_title(f"{label}\n$y_0$={y0}, $v_0$={v0}")
+            ax.grid(True)
+            if i == len(condiciones) - 1:
+                ax.set_xlabel("Tiempo (s)")
+            if j == 0:
+                ax.set_ylabel("Altura (m)")
 
-f_lambdified = sp.lambdify(r, f.subs({G: G, M: M}), modules='numpy') #es lo mismo que f=-G * M / r**2
-f_RT = f_lambdified(RT)
-f_RTh = f_lambdified(RT + h)
-rel_diff = abs(f_RTh - f_RT) / abs(f_RT)
-print("Valor f_RT: ",  f_RT)
-print("Valor f_RTh: ", f_RTh)
-
-
-rel_diff_porcent = (rel_diff * 100)
-rel_diff_porcent_round = round(rel_diff_porcent, 3 - int(np.floor(np.log10(abs(rel_diff_porcent)))) - 1) if rel_diff_porcent != 0 else 0
-
-
-#REVISAR PARTE DE COMPARAR CON TAYOR GRADO 2
-# 3. Polinomio de Taylor de orden 2
-taylor_order2 = f.series(r, r0, 3).removeO()
-taylor_order2_simplified = sp.simplify(taylor_order2)
-
-taylor_order2_func = sp.lambdify(r, taylor_order2.subs({G: G, M: M}), modules='numpy')
-
-#Comparar f(RT + h) con el taylor de orden 2
-taylor_val_at_RTh = taylor_order2_func(RT + h)
-error_order2 = abs(taylor_val_at_RTh - f_RTh) / abs(f_RTh)
-
-
-# 4. Graficar f(r) y el polinomio de Taylor cerca de RT
-r_vals = np.linspace(RT - 10000, RT + 10000, 500)
-f_vals = f_lambdified(r_vals)
-taylor_vals = taylor_order2_func(r_vals)
-
-# Graficar
-plt.figure(figsize=(10, 6))
-plt.plot(r_vals, f_vals, label='f(r) = -GM/r^2')
-plt.plot(r_vals, taylor_vals, '--', label='Polinomio de Taylor orden 2')
-plt.axvline(RT, color='gray', linestyle=':')
-plt.xlabel('r (m)')
-plt.ylabel('Aceleración (m/s²)')
-plt.title('Comparación entre f(r) y su Taylor de orden 2 cerca de RT')
-plt.legend()
-plt.grid(True)
-plt.tight_layout()
-plt.show()
-
-(taylor_order1, rel_diff, error_order2)
+    # Leyenda única por figura
+    handles, labels = axs[0, 0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc='lower center', ncol=3, bbox_to_anchor=(0.5, -0.01))
+    plt.tight_layout(rect=[0, 0.03, 1, 0.97])
+    plt.show()
 
 
 
-
-
-print("Parte 1: ", taylor_redondeado)
-
-print("\nParte 2: ", rel_diff_porcent_round)
-
-print("\nParte 3: ", rel_diff_porcent_round)
-print("Taylor de orden 2:", taylor_order2_simplified)
-print("taylor_val_at_RTh: ", taylor_val_at_RTh)
-print("error_order2: ", error_order2)
