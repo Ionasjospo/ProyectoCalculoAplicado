@@ -101,7 +101,6 @@ plt.grid(True)
 plt.tight_layout()
 plt.show()
 
-
 #Imprimimos los resultados
 
 print("\nParte 1: Polinomio de Taylor ", taylor_redondeado)
