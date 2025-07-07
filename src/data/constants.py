@@ -1,4 +1,3 @@
-# Definir las variables
 RT = 6.378e6  # Radio de la Tierra en metros
 h = 8849      # Altura del Monte Everest
 G = 6.674e-11  # Constante de gravitación universal
@@ -11,3 +10,6 @@ gammas = {
     "Persona": 2.35e-1,
     "Auto": 1.05e-2
 }
+
+y0 = 10   # altura inicial (m)
+v0 = 0
