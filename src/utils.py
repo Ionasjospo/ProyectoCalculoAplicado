@@ -1,6 +1,5 @@
 import numpy as np
 
-# functions for taylor gravity
 def y_with_friction(t, y0, v0, g, gamma):
     return y0 - (g / gamma) * t - (1 / gamma) * (v0 + g / gamma) * (np.exp(-gamma * t) - 1)
 

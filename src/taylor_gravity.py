@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from data.constants import RT, h, G, M
 
-
 # 1. Desarrollo de Taylor alrededor de r0 hasta orden 1
 # Definir variable simbólica
 r = sp.Symbol('r')
@@ -24,8 +23,6 @@ f_RTh = f_lambdified(RT + h)
 
 rel_diff = abs(f_RTh - f_RT) / abs(f_RT)
 rel_diff_porcent = rel_diff * 100
-
-print(f"Diferencia relativa: {rel_diff_porcent:.4f} %")
 
 # 3. Polinomio de Taylor de orden 2
 taylor_order2 = f.series(r, r0, 3).removeO()
@@ -60,9 +57,7 @@ plt.show()
 # 5. Altura necesaria para que g sea un 1 % menor que en la superficie
 
 r_target_1pct = RT / np.sqrt(0.99)
-
 height_1pct_drop = r_target_1pct - RT
-
 
 # 6 Polinomios de Taylor de orden 2 y 3 alrededor de r0 = 0.01 m
 r0 = 0.01
@@ -109,17 +104,12 @@ plt.show()
 
 #Imprimimos los resultados
 
-print("Parte 1: Polinomio de Taylor ", taylor_redondeado)
-
-print(f"Parte 2: Diferencia relativa: {rel_diff_porcent:.3f} %")
-
+print("\nParte 1: Polinomio de Taylor ", taylor_redondeado)
+print(f"\nParte 2: Diferencia relativa: {rel_diff_porcent:.3f} %")
 print("\nParte 3: ")
-
 print("Taylor de grado 2:", taylor_order2_simplified)
 print(f"taylor_val_at_RTh: {taylor_val_at_RTh:.4f} m/s²")
 print(f"Error relativo entre Taylor de grado 2 y f(RT + h): {error_order2} ")
-
 print(f"\nParte 5: Altura para 1% de caída de g: {height_1pct_drop/1e3:.2f} km")
-
 print(f"\nParte 6: Error Taylor de grado 2 en r={r} m: {error_rel_t2*100:.1f} %")
 print(f"\nParte 6: Error Taylor de grado 3 en r={r} m: {error_rel_t3*100:.1f} %")
